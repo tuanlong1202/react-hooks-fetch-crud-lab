@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 
 function QuestionForm(props) {
-  const [formData, setFormData] = useState({
+  const newFormData = {
     prompt: "",
     answer1: "",
     answer2: "",
     answer3: "",
     answer4: "",
     correctIndex: 0,
-  });
+  };
+  const [formData, setFormData] = useState(newFormData);
 
   function handleChange(event) {
     setFormData({
@@ -17,9 +18,73 @@ function QuestionForm(props) {
     });
   }
 
+  function makeQuestionRecord() {
+    let questionRecord = {
+      prompt: "",
+      answers: [],
+      correctIndex:0,
+    }
+
+    questionRecord.prompt = formData.prompt;
+    questionRecord.answers[0] = formData.answer1;
+    questionRecord.answers[1] = formData.answer2;
+    questionRecord.answers[2] = formData.answer3;
+    questionRecord.answers[3] = formData.answer4;
+    questionRecord.correctIndex = formData.correctIndex;
+
+    return questionRecord;
+  }
+
+  function validateForm(event) {
+    if(formData.prompt === "") {
+      alert("Prompt cannot be empty !");
+      event.target.prompt.focus();
+      return false;
+    }
+    if(formData.answer1 === "") {
+      alert("All Answer are required !");
+      event.target.answer1.focus();
+      return false;
+    }
+    if(formData.answer2 === "") {
+      alert("All Answer are required !");
+      event.target.answer2.focus();
+      return false;
+    }
+    if(formData.answer3 === "") {
+      alert("All Answer are required !");
+      event.target.answer3.focus();
+      return false;
+    }
+    if(formData.answer4 === "") {
+      alert("All Answer are required !");
+      event.target.answer4.focus();
+      return false;
+    }
+    return true;
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
-    console.log(formData);
+    if (validateForm(event)) {
+      addQuestion(makeQuestionRecord());
+      setFormData(newFormData);
+    }
+  }
+
+  function addQuestion(record){
+    let url="http://localhost:4000/questions";
+    fetch(url, {
+      method: 'POST', // or 'PUT'
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(record),
+    })
+      .then(response => response.json())
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   }
 
   return (
